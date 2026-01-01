@@ -220,7 +220,14 @@ class AppUsageTrackingService : AccessibilityService() {
                 lastScrollTime = currentTime
                 
                 // 스크롤 델타를 미터로 환산
-                val totalPixels = scrollDeltaX + scrollDeltaY
+                // 피타고라스 정리를 사용하여 실제 스크롤 거리 계산 (단순 합산 대신)
+                val totalPixels = if (scrollDeltaX > 0 || scrollDeltaY > 0) {
+                    kotlin.math.sqrt(
+                        (scrollDeltaX * scrollDeltaX + scrollDeltaY * scrollDeltaY).toDouble()
+                    ).toInt()
+                } else {
+                    0
+                }
                 val distanceMeters = if (totalPixels > 0) {
                     ConversionUtil.pixelsToMeters(totalPixels, this@AppUsageTrackingService)
                 } else {

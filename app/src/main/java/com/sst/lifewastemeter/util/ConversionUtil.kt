@@ -9,8 +9,9 @@ object ConversionUtil {
     // 픽셀 / DPI * 0.0254 = 미터 (1인치 = 0.0254미터)
     fun pixelsToMeters(pixels: Int, context: Context): Double {
         val displayMetrics = context.resources.displayMetrics
-        // xdpi와 ydpi의 평균을 사용 (스크롤은 주로 수직이지만 수평도 고려)
-        val dpi = (displayMetrics.xdpi + displayMetrics.ydpi) / 2.0
+        // densityDpi를 사용 (더 정확하고 안정적)
+        // densityDpi는 Android 시스템이 설정한 논리적 DPI로, 기기별로 정확하게 설정됨
+        val dpi = displayMetrics.densityDpi.toDouble()
         // DPI가 0이거나 이상한 값이면 기본값 사용
         val validDpi = if (dpi > 0) dpi else 160.0
         return (pixels / validDpi) * 0.0254
