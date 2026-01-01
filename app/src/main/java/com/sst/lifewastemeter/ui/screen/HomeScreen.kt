@@ -47,13 +47,14 @@ fun HomeScreen(
     val userSettings by viewModel.userSettings.collectAsState()
     var lastScrollDistance by remember { mutableStateOf(uiState.scrollDistanceMeters) }
     var showNewScrollNotification by remember { mutableStateOf(false) }
+    var addedDistance by remember { mutableStateOf(0.0) }
     
     // 스크롤 거리가 증가할 때 알림 표시
     LaunchedEffect(uiState.scrollDistanceMeters) {
         if (uiState.scrollDistanceMeters > lastScrollDistance) {
-            val added = uiState.scrollDistanceMeters - lastScrollDistance
-            showNewScrollNotification = true
+            addedDistance = uiState.scrollDistanceMeters - lastScrollDistance
             lastScrollDistance = uiState.scrollDistanceMeters
+            showNewScrollNotification = true
             delay(2000)
             showNewScrollNotification = false
         }
@@ -238,7 +239,6 @@ fun HomeScreen(
             
             // 실시간 알림
             if (showNewScrollNotification) {
-                val added = uiState.scrollDistanceMeters - lastScrollDistance
                 AnimatedVisibility(
                     visible = showNewScrollNotification,
                     enter = slideInVertically() + fadeIn(),
@@ -253,7 +253,7 @@ fun HomeScreen(
                         )
                     ) {
                         Text(
-                            text = "방금 ${String.format("%.2f", added)}m 추가!",
+                            text = "방금 ${String.format("%.2f", addedDistance)}m 추가!",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(16.dp)

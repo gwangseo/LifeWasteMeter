@@ -237,9 +237,12 @@ class AppUsageTrackingService : AccessibilityService() {
                 
                 Log.d(TAG, "스크롤 거리 추가: packageName=$packageName, scrollDeltaY=$scrollDeltaY, scrollDeltaX=$scrollDeltaX, totalPixels=$totalPixels, distanceMeters=$distanceMeters")
                 
-                // 실시간으로 스크롤 거리 저장 (미터 단위)
+                // 실시간으로 스크롤 거리 및 카운트 저장
                 serviceScope.launch {
-                    getRepository()?.addScrollDistance(distanceMeters)
+                    getRepository()?.apply {
+                        addScrollDistance(distanceMeters)
+                        addScrollCount(1)
+                    }
                 }
             } else {
                 Log.d(TAG, "스크롤 거리 부족: scrollDeltaY=$scrollDeltaY, scrollDeltaX=$scrollDeltaX, minScrollDelta=$minScrollDelta")
@@ -319,7 +322,10 @@ class AppUsageTrackingService : AccessibilityService() {
                 Log.d(TAG, "제스처로 인한 스크롤 거리 추가: packageName=$packageName, distanceMeters=$defaultDistanceMeters")
                 
                 serviceScope.launch {
-                    getRepository()?.addScrollDistance(defaultDistanceMeters)
+                    getRepository()?.apply {
+                        addScrollDistance(defaultDistanceMeters)
+                        addScrollCount(1)
+                    }
                 }
             } else {
                 Log.d(TAG, "제스처 카운트 조건 불만족: shouldCount=$shouldCount, elapsed=${currentTime - lastScrollTime}")
@@ -387,7 +393,10 @@ class AppUsageTrackingService : AccessibilityService() {
             Log.d(TAG, "유튜브 콘텐츠 변경으로 인한 스크롤 거리 추가: distanceMeters=$defaultDistanceMeters")
             
             serviceScope.launch {
-                getRepository()?.addScrollDistance(defaultDistanceMeters)
+                getRepository()?.apply {
+                    addScrollDistance(defaultDistanceMeters)
+                    addScrollCount(1)
+                }
             }
         } else {
             Log.d(TAG, "유튜브 콘텐츠 변경 시간 제한: elapsed=$timeSinceLastScroll")
@@ -436,7 +445,10 @@ class AppUsageTrackingService : AccessibilityService() {
                         Log.d(TAG, "유튜브 터치 상호작용으로 인한 스크롤 거리 추가: distanceMeters=$defaultDistanceMeters")
                         
                         serviceScope.launch {
-                            getRepository()?.addScrollDistance(defaultDistanceMeters)
+                            getRepository()?.apply {
+                                addScrollDistance(defaultDistanceMeters)
+                                addScrollCount(1)
+                            }
                         }
                     } else {
                         Log.d(TAG, "유튜브 터치 상호작용: 스크롤 가능한 노드 없음 (클릭일 수 있음)")
@@ -455,7 +467,10 @@ class AppUsageTrackingService : AccessibilityService() {
             val usageTime = System.currentTimeMillis() - appStartTime
             
             serviceScope.launch {
-                getRepository()?.addUsageTime(usageTime)
+                getRepository()?.apply {
+                    addUsageTime(usageTime)
+                    addAppUsageTime(currentPackageName!!, usageTime)
+                }
             }
         }
     }

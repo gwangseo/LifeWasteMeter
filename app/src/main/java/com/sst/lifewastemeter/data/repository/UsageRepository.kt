@@ -13,6 +13,7 @@ import com.sst.lifewastemeter.data.model.AppUsageData
 import com.sst.lifewastemeter.data.model.DailyUsageData
 import com.sst.lifewastemeter.data.model.DisplayMode
 import com.sst.lifewastemeter.data.model.UserSettings
+import com.sst.lifewastemeter.util.UsageStatsUtil
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -32,6 +33,7 @@ class UsageRepository(private val context: Context) {
     private fun getDailyScrollKey(date: Long) = longPreferencesKey("daily_scroll_$date")
     private fun getDailyScrollDistanceKey(date: Long) = stringPreferencesKey("daily_scroll_distance_$date")  // Double을 String으로 저장
     private fun getDailyTimeKey(date: Long) = longPreferencesKey("daily_time_$date")
+    private fun getAppTimeKey(date: Long, packageName: String) = longPreferencesKey("app_time_${date}_$packageName")
     
     val userSettings: Flow<UserSettings> = context.dataStore.data.map { preferences ->
         UserSettings(
@@ -106,6 +108,14 @@ class UsageRepository(private val context: Context) {
         }
     }
     
+    suspend fun addAppUsageTime(packageName: String, timeMillis: Long) {
+        val today = getTodayTimestamp()
+        context.dataStore.edit { preferences ->
+            val currentTime = preferences[getAppTimeKey(today, packageName)] ?: 0L
+            preferences[getAppTimeKey(today, packageName)] = currentTime + timeMillis
+        }
+    }
+    
     fun getTodayUsage(): Flow<DailyUsageData> = context.dataStore.data.map { preferences ->
         val today = getTodayTimestamp()
         DailyUsageData(
@@ -124,6 +134,82 @@ class UsageRepository(private val context: Context) {
                 "com.zhiliaoapp.musically"
             )
         }
+    }
+    
+    // 최근 N일간의 일별 데이터 가져오기
+    suspend fun getDailyUsageHistory(days: Int = 30): List<DailyUsageData> {
+        val preferences = context.dataStore.data.first()
+        val result = mutableListOf<DailyUsageData>()
+        
+        // 오늘 날짜 기준으로 설정
+        val todayCalendar = Calendar.getInstance()
+        todayCalendar.set(Calendar.HOUR_OF_DAY, 0)
+        todayCalendar.set(Calendar.MINUTE, 0)
+        todayCalendar.set(Calendar.SECOND, 0)
+        todayCalendar.set(Calendar.MILLISECOND, 0)
+        
+        val selectedApps = preferences[selectedAppsKey] ?: setOf(
+            "com.google.android.youtube",
+            "com.instagram.android",
+            "com.zhiliaoapp.musically"
+        )
+        
+        // UsageStats에서 앱별 사용 시간 가져오기 (권한이 있는 경우)
+        val usageStatsData = if (UsageStatsUtil.isUsageStatsPermissionGranted(context)) {
+            UsageStatsUtil.getAppUsageTimeForDates(context, selectedApps, days)
+        } else {
+            emptyMap()
+        }
+        
+        for (i in 0 until days) {
+            val calendar = todayCalendar.clone() as Calendar
+            calendar.add(Calendar.DAY_OF_YEAR, -i)
+            val date = calendar.timeInMillis
+            
+            val scrollCount = (preferences[getDailyScrollKey(date)] ?: 0L).toInt()
+            val scrollDistance = preferences[getDailyScrollDistanceKey(date)]?.toDoubleOrNull() ?: 0.0
+            val usageTime = preferences[getDailyTimeKey(date)] ?: 0L
+            
+            // 앱별 사용 시간 가져오기 (UsageStats 우선, 없으면 저장된 데이터 사용)
+            val appUsages = mutableMapOf<String, AppUsageData>()
+            val dayUsageStats = usageStatsData[date] ?: emptyMap()
+            
+            selectedApps.forEach { packageName ->
+                // UsageStats에서 가져온 데이터가 있으면 사용, 없으면 저장된 데이터 사용
+                val appTime = dayUsageStats[packageName] ?: (preferences[getAppTimeKey(date, packageName)] ?: 0L)
+                val appName = when (packageName) {
+                    "com.google.android.youtube" -> "YouTube"
+                    "com.instagram.android" -> "Instagram"
+                    "com.zhiliaoapp.musically", "com.ss.android.ugc.trill" -> "TikTok"
+                    else -> packageName
+                }
+                appUsages[packageName] = AppUsageData(
+                    packageName = packageName,
+                    appName = appName,
+                    usageTimeMillis = appTime,
+                    date = date
+                )
+            }
+            
+            // 총 사용 시간은 앱별 사용 시간 합계 사용 (UsageStats가 있으면)
+            val totalUsageTime = if (dayUsageStats.isNotEmpty()) {
+                dayUsageStats.values.sum()
+            } else {
+                usageTime
+            }
+            
+            result.add(
+                DailyUsageData(
+                    date = date,
+                    totalScrollCount = scrollCount,
+                    totalScrollDistanceMeters = scrollDistance,
+                    totalUsageTimeMillis = totalUsageTime,
+                    appUsages = appUsages
+                )
+            )
+        }
+        
+        return result.reversed() // 오래된 날짜부터 최신 날짜 순으로
     }
     
     private fun getTodayTimestamp(): Long {

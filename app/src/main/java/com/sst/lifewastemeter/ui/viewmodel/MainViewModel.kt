@@ -34,6 +34,9 @@ class MainViewModel(private val repository: UsageRepository) : ViewModel() {
         initialValue = ""
     )
     
+    private val _dailyUsageHistory = MutableStateFlow<List<DailyUsageData>>(emptyList())
+    val dailyUsageHistory: StateFlow<List<DailyUsageData>> = _dailyUsageHistory.asStateFlow()
+    
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
     
@@ -79,6 +82,12 @@ class MainViewModel(private val repository: UsageRepository) : ViewModel() {
     fun setFirstLaunchComplete() {
         viewModelScope.launch {
             repository.setFirstLaunchComplete()
+        }
+    }
+    
+    fun loadDailyUsageHistory(days: Int = 30) {
+        viewModelScope.launch {
+            _dailyUsageHistory.value = repository.getDailyUsageHistory(days)
         }
     }
 }

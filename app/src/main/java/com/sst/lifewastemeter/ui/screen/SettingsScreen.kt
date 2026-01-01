@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sst.lifewastemeter.LifeWasteMeterApplication
 import com.sst.lifewastemeter.service.AppUsageTrackingService
 import com.sst.lifewastemeter.ui.viewmodel.MainViewModel
+import com.sst.lifewastemeter.util.UsageStatsUtil
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,10 +40,14 @@ fun SettingsScreen(
     var isAccessibilityEnabled by remember {
         mutableStateOf(AppUsageTrackingService.isAccessibilityServiceEnabled(context))
     }
+    var isUsageStatsEnabled by remember {
+        mutableStateOf(UsageStatsUtil.isUsageStatsPermissionGranted(context))
+    }
     
     LaunchedEffect(Unit) {
         while (true) {
             isAccessibilityEnabled = AppUsageTrackingService.isAccessibilityServiceEnabled(context)
+            isUsageStatsEnabled = UsageStatsUtil.isUsageStatsPermissionGranted(context)
             delay(500)
         }
     }
@@ -143,7 +148,9 @@ fun SettingsScreen(
             
             // 접근성 권한 설정
             Card(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp)
@@ -167,6 +174,41 @@ fun SettingsScreen(
                     Button(
                         onClick = {
                             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("권한 설정으로 이동")
+                    }
+                }
+            }
+            
+            // 사용 통계 권한 설정
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "사용 통계 권한",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    Text(
+                        text = if (isUsageStatsEnabled) {
+                            "✓ 사용 통계 권한이 활성화되었습니다\n(정확한 앱 사용 시간을 추적할 수 있습니다)"
+                        } else {
+                            "사용 통계 권한이 비활성화되어 있습니다\n(정확한 앱 사용 시간을 추적하려면 권한이 필요합니다)"
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    Button(
+                        onClick = {
+                            val intent = UsageStatsUtil.getUsageStatsSettingsIntent()
                             context.startActivity(intent)
                         },
                         modifier = Modifier.fillMaxWidth()
