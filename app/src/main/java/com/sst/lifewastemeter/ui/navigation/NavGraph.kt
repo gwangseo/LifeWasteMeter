@@ -1,6 +1,7 @@
 package com.sst.lifewastemeter.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -8,6 +9,7 @@ import com.sst.lifewastemeter.ui.screen.HomeScreen
 import com.sst.lifewastemeter.ui.screen.OnboardingScreen
 import com.sst.lifewastemeter.ui.screen.RankingScreen
 import com.sst.lifewastemeter.ui.screen.SettingsScreen
+
 
 sealed class Screen(val route: String) {
     object Onboarding : Screen("onboarding")
@@ -52,6 +54,7 @@ fun NavGraph(navController: NavHostController, startDestination: String) {
         }
     }
 }
+
 
 
 

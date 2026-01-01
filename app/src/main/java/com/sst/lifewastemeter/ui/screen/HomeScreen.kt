@@ -6,7 +6,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -63,7 +65,7 @@ fun HomeScreen(
                 title = { Text("인생낭비 측정기") },
                 actions = {
                     IconButton(onClick = onNavigateToRanking) {
-                        Icon(Icons.Default.Star, contentDescription = "랭킹")
+                        Icon(Icons.Default.Face, contentDescription = "랭킹")
                     }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Default.Settings, contentDescription = "설정")
@@ -76,7 +78,8 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()), // 이 줄 추가!
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 현재 추적 중인 앱 표시
@@ -127,7 +130,7 @@ fun HomeScreen(
                     FilterChip(
                         selected = uiState.displayMode == DisplayMode.CLIMBING,
                         onClick = { viewModel.updateDisplayMode(DisplayMode.CLIMBING) },
-                        label = { Text("등반 모드") }
+                        label = { Text("등산 모드") }
                     )
                     FilterChip(
                         selected = uiState.displayMode == DisplayMode.TOILET_PAPER,

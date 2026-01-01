@@ -3,6 +3,7 @@ package com.sst.lifewastemeter.util
 import android.content.Context
 import android.util.DisplayMetrics
 import com.sst.lifewastemeter.data.model.DisplayMode
+import kotlin.math.round
 
 object ConversionUtil {
     // 픽셀을 미터로 환산하는 함수
@@ -22,16 +23,32 @@ object ConversionUtil {
     
     // 휴지 1칸 = 11.4cm = 0.114m
     private const val TOILET_PAPER_LENGTH_METERS = 0.114
-    
-    // 에베레스트 높이: 8,848m
-    private const val EVEREST_HEIGHT = 8848.0
-    
+
     // 서울-부산 거리: 약 325km = 325,000m
     private const val SEOUL_BUSAN_DISTANCE = 325000.0
-    
+
+    // 에베레스트 높이: 8,848m
+    private const val EVEREST_HEIGHT = 8848.0
+
+    // 백두산 높이: 2,744m
+    private const val Baekdu_HEIGHT = 2744.0
+
+    // 한라산 높이: 1,950m
+    private const val Hanla_HEIGHT = 1950.0
+
+    // 에펠탑 높이: 324m
+    private const val Eifel_HEIGHT = 324.0
+
     // 63빌딩 높이: 264m
     private const val BUILDING_63_HEIGHT = 264.0
-    
+
+    // 피라미드 높이: 146.8m
+    private const val Pyramid_HEIGHT = 146.8
+
+    // 피사의 사탑 높이: 55.86m
+    private const val Pisa_HEIGHT = 55.86
+
+
     // 미터 단위 거리를 받아서 계산
     fun calculateDistance(distanceMeters: Double): Double {
         return distanceMeters
@@ -48,24 +65,59 @@ object ConversionUtil {
     
     fun getClimbingMessage(distanceMeters: Double): String {
         val distance = calculateDistance(distanceMeters)
-        
+        val time1 = round((distance / SEOUL_BUSAN_DISTANCE)*100) / 100
+        val time2= round((distance / EVEREST_HEIGHT)*100) / 100
+        val time3 = round((distance / Baekdu_HEIGHT)*100) / 100
+        val time4 = round((distance / Hanla_HEIGHT)*100) / 100
+        val time5 = round((distance / Eifel_HEIGHT)*100) /100
+        val time6 = round((distance / BUILDING_63_HEIGHT)*100) / 100
+        val time7 = round((distance / Pyramid_HEIGHT)*100) / 100
+        val time8 = round((distance / Pisa_HEIGHT)*100) / 100
+
         return when {
+            distance >= SEOUL_BUSAN_DISTANCE -> {
+                "지금까지 엄지손가락으로 서울에서 부산까지 (${time1}회)만큼 걸어갔습니다!\n" +
+                        "피사의 사탑, 피라미드, 63빌딩, 에펠탑, 백두산, 에베레스트 산을 넘어서 국토 종주까지 하셨네요!\n" +
+                        "정말 엄청나요! 이렇게까지 핸드폰만 만질 분은 없을 것 같아서 그다음은 코딩도 안 해놨어요!!!"
+            }
             distance >= EVEREST_HEIGHT -> {
-                val times = (distance / EVEREST_HEIGHT).toInt()
-                "오늘 당신은 에베레스트 산(${times}회) 높이만큼 스크롤했습니다!"
+                "오늘 당신은 에베레스트 산(${time2}회) 높이만큼 스크롤했습니다!\n" +
+                        "조금 있으면 서울에서 부산까지 손가락으로 갈 수 있으세요! 현재: 서울부산 (${time1}회). 거의 다 왔다!"
+            }
+            distance >= Baekdu_HEIGHT -> {
+                "오늘 당신은 백두산(${time3}회) 높이만큼 스크롤했습니다!\n" +
+                        "조금 있으면 손가락으로 에베레스트 산도 등산하겠는걸요!?\n" +
+                        "에베레스트 산(${time2}회) 높이만큼 스크롤했습니다!"
+            }
+            distance >= Hanla_HEIGHT -> {
+                "오늘 당신은 한라산(${time4}회) 높이만큼 스크롤했습니다!\n" +
+                        "조금 있으면 손가락으로 백두산도 등산하겠는걸요!?\n" +
+                        "백두산(${time3}회) 높이만큼 스크롤했습니다!"
+            }
+            distance >= Eifel_HEIGHT -> {
+                "오늘 당신은 에펠탑(${time5}회) 높이만큼 스크롤했습니다!\n" +
+                        "조금 있으면 손가락으로 한라산도 등산하겠는걸요!?\n" +
+                        "한라산(${time4}회) 높이만큼 스크롤했습니다!"
             }
             distance >= BUILDING_63_HEIGHT -> {
-                val times = (distance / BUILDING_63_HEIGHT).toInt()
-                "오늘 당신은 63빌딩(${times}회) 높이만큼 스크롤했습니다!"
+                "오늘 당신은 63빌딩(${time6}회) 높이만큼 스크롤했습니다!\n" +
+                        "조금 있으면 에펠탑보다 높게 손가락으로 스크롤 하겠는걸요!?\n" +
+                        "에펠탑(${time5}회) 높이만큼 스크롤했습니다!"
             }
-            distance >= SEOUL_BUSAN_DISTANCE -> {
-                "지금까지 엄지손가락으로 서울에서 부산까지 걸어갔습니다!"
+            distance >= Pyramid_HEIGHT -> {
+                "오늘 당신은 피라미드(${time7}회) 높이만큼 스크롤했습니다!\n" +
+                        "조금 있으면 63빌딩보다 높게 손가락으로 스크롤 하겠는걸요!?\n" +
+                        "63빌딩(${time6}회) 높이만큼 스크롤했습니다!"
             }
-            distance >= 1000 -> {
-                "오늘 ${String.format("%.1f", distance / 1000)}km를 스크롤했습니다!"
+            distance >= Pisa_HEIGHT -> {
+                "오늘 당신은 피사의 사탑(${time8}회) 높이만큼 스크롤했습니다!\n" +
+                        "조금 있으면 에베레스트 산도 등산하겠는걸요!?\n" +
+                        "에베레스트 산(${time7}회) 높이만큼 스크롤했습니다!"
             }
             else -> {
-                "오늘 ${String.format("%.1f", distance)}m를 스크롤했습니다!"
+                "오늘 ${String.format("%.1f", distance)}m를 스크롤했습니다!\n" +
+                        "조금 있으면 피사의 사탑 높이만큼 손가락으로 스크롤 하겠는걸요!?\n" +
+                        "피사의 사탑(${time8}회) 높이만큼 스크롤했습니다!"
             }
         }
     }
@@ -87,16 +139,18 @@ object ConversionUtil {
     fun getRandomFactMessage(distanceMeters: Double, mode: DisplayMode): String {
         val facts = when (mode) {
             DisplayMode.CLIMBING -> listOf(
-                "이 정도면 하루 종일 계단을 오르내린 셈입니다.",
-                "당신의 엄지손가락은 오늘 하루 종일 운동했습니다.",
-                "이 스크롤로는 작은 산 하나는 오를 수 있습니다.",
-                "스크롤한 거리만큼 걷는다면 하루 운동량은 충분합니다."
+                "이 정도면 하루 종일 손가락으로 계단을 오르내린 셈이겠는데요?!",
+                "당신의 엄지손가락'만' 오늘 하루 종일 운동했습니다.",
+                "이 정도 스크롤로는 산 하나는 오를 수 있겠는데요?",
+                "스크롤한 거리만큼 걷는다면 하루 운동량은 충분합니다. 허허...",
+                "우아! 엄청난 인생 시간 낭비! 당신의 청춘은 소중해요!"
             )
             DisplayMode.TOILET_PAPER -> listOf(
-                "이 휴지로는 작은 나무 한 그루가 필요합니다.",
-                "환경을 생각한다면 오늘 하루는 충분합니다.",
+                "이 휴지를 만드려면 나무 몇 그루가 필요할 수도..?.",
                 "이 정도면 한 달치 휴지를 하루에 쓴 셈입니다.",
-                "지구를 위해 조금만 덜 스크롤해보세요."
+                "당신의 엄지손가락'만' 오늘 하루 종일 운동했습니다.",
+                "스크롤한 거리만큼 걷는다면 하루 운동량은 충분합니다. 허허...",
+                "우아! 엄청난 인생 시간 낭비! 당신의 청춘은 소중해요!"
             )
         }
         return facts.random()
