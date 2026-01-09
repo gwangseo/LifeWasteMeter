@@ -5,15 +5,7 @@
 - App Name: 인생낭비 측정기
 - Google Play Store: 심사 중
 
-<img width="1080" height="1920" alt="Image" src="https://github.com/user-attachments/assets/5fa54ec0-2036-424a-9f4f-fed586d4f193" />
-
-<img width="1080" height="1920" alt="Image" src="https://github.com/user-attachments/assets/8c346881-051f-4330-9475-b9fa45603f8e" />
-
-<img width="1080" height="1920" alt="Image" src="https://github.com/user-attachments/assets/09f29647-2d69-49c8-9cad-235b61975800" />
-
-<br />   
-
-![App Icon](app/src/main/res/mipmap-xxxhdpi/ic_launcher.png)
+<img width="1432" height="1273" alt="Image" src="https://github.com/user-attachments/assets/b1b35023-6d49-4130-b982-d5131ab68bc4" />
 
 <br />   
 
